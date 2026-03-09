@@ -395,7 +395,7 @@
   }
   .portfolio-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5px;
     background: var(--border);
     border: 1.5px solid var(--border);
@@ -403,10 +403,10 @@
   }
   .portfolio-card {
     background: var(--paper);
-    padding: 3rem;
+    padding: 2.5rem;
     position: relative;
     overflow: hidden;
-    min-height: 320px;
+    min-height: 280px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -427,26 +427,26 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
     position: relative;
     z-index: 2;
   }
   .portfolio-title {
     font-family: var(--serif);
-    font-size: 1.8rem;
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
     line-height: 1.1;
     letter-spacing: -0.02em;
     position: relative;
     z-index: 2;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
   }
   .portfolio-desc {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     line-height: 1.6;
     color: var(--muted);
     position: relative;
     z-index: 2;
-    max-width: 380px;
+    max-width: 100%;
   }
 
   /* PROCESS */
@@ -848,6 +848,10 @@
     text-transform: uppercase;
   }
 
+  @media (max-width: 900px) and (min-width: 601px) {
+    .portfolio-grid { grid-template-columns: 1fr 1fr; }
+    .portfolio-card { min-height: 260px; padding: 2rem; }
+  }
   @media (max-width: 900px) {
     nav { padding: 1.2rem 1.5rem; }
     .nav-links { display: none; }
@@ -856,6 +860,9 @@
     .cities-grid { grid-template-columns: 1fr; }
     .services-grid { grid-template-columns: 1fr; }
     .portfolio-grid { grid-template-columns: 1fr; }
+    .portfolio-card { min-height: 240px; padding: 1.8rem; }
+    .portfolio-title { font-size: 1.5rem; }
+    .portfolio-section { padding: 3.5rem 1.2rem; }
     .process-steps { grid-template-columns: 1fr 1fr; }
     .pricing-grid { grid-template-columns: 1fr; }
     .contact-section { grid-template-columns: 1fr; gap: 3rem; }
@@ -2495,7 +2502,7 @@ if (nzCityTab) {
     </div>
     <p class="section-desc">A selection of microsites and dashboards delivered for government bodies, commercial clients, and research institutions.</p>
   </div>
-  <div class="portfolio-grid" style="grid-template-columns: repeat(3,1fr);">
+  <div class="portfolio-grid">
 
     <div class="portfolio-card">
       <svg class="portfolio-vis" id="port1" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid slice"></svg>
@@ -2689,7 +2696,7 @@ if (nzCityTab) {
         <label class="form-label">Tell Us About Your Project</label>
         <textarea class="form-textarea" placeholder="What data do you have? What story do you need to tell? What's your timeline?"></textarea>
       </div>
-      <button class="form-submit">Send Project Brief →</button>
+      <button class="form-submit" onclick="submitBrief(event)">Send Project Brief →</button>
     </div>
   </div>
 </section>
@@ -2776,6 +2783,30 @@ function handleStripeCheckout() {
   const key = document.getElementById('modalOverlay').dataset.stripeKey;
   const url = STRIPE_LINKS[key];
   if (url) { window.open(url, '_blank'); closeModal(); }
+}
+
+// ── CONTACT FORM — MAILTO ────────────────────────────────────────────────────
+function submitBrief(e) {
+  e.preventDefault();
+  const form = e.target.closest('.contact-form');
+  const get  = sel => form.querySelector(sel)?.value?.trim() || '';
+  const firstName = get('input[placeholder="Jane"]');
+  const lastName  = get('input[placeholder="Smith"]');
+  const email     = get('input[type="email"]');
+  const org       = get('input[placeholder*="New York"]');
+  const service   = get('select')?.value || '';
+  const message   = get('textarea')?.value?.trim() || '';
+
+  const subject = encodeURIComponent(`Axonview Project Brief — ${org || firstName+' '+lastName}`);
+  const body = encodeURIComponent(
+    `Name: ${firstName} ${lastName}\n` +
+    `Email: ${email}\n` +
+    `Organisation: ${org}\n` +
+    `Service: ${service}\n\n` +
+    `Project Brief:\n${message}\n\n` +
+    `— Sent via axonview.com`
+  );
+  window.location.href = `mailto:ryan@ryanjennings.net?subject=${subject}&body=${body}`;
 }
 
 // ── HERO VISUALIZATION ───────────────────────────────────────────────────────
